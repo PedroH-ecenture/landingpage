@@ -1,9 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import './App.css'  
+import './App.css'
 
 export default function Formulario() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const [formData, setFormData] = useState({
     nome: "",
     telefone: "",
@@ -59,12 +69,22 @@ export default function Formulario() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className={`relative flex flex-col items-center justify-center min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"}`}>
+      <button
+        type="button"
+        onClick={() => setDarkMode(!darkMode)}
+        className={`absolute top-4 right-4 px-4 py-2 rounded-lg transition 
+          ${darkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"}`}
+      >
+        {darkMode ? "Modo Claro" : "Modo Escuro"}
+      </button>
+
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-4"
+        className={`p-8 rounded-xl shadow-lg w-full max-w-md space-y-4 
+          ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}
       >
-        <h2 className="text-2xl font-bold text-gray-800 text-center">
+        <h2 className="text-2xl font-bold text-center">
           Formulário de Cadastro
         </h2>
 
@@ -74,7 +94,7 @@ export default function Formulario() {
           placeholder="Nome"
           value={formData.nome}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 dark:placeholder-gray-500"
         />
 
         <div className="relative">
@@ -84,7 +104,7 @@ export default function Formulario() {
             placeholder="Telefone (somente números)"
             value={formData.telefone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+            className="w-full px-3 py-2 border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 dark:placeholder-gray-500"
           />
           <button
             type="button"
@@ -101,7 +121,7 @@ export default function Formulario() {
           placeholder="E-mail"
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 dark:placeholder-gray-500"
         />
 
         <input
@@ -110,17 +130,16 @@ export default function Formulario() {
           placeholder="CPF"
           value={formData.cpf}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 dark:placeholder-gray-500"
         />
 
         <button
           type="submit"
-          className="w-full sm:w-auto bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-200 block mx-auto"
+          className="w-full sm:w-auto bg-blue-400 text-black dark:bg-blue-800 dark:text-white py-2 px-6 rounded-lg hover:bg-blue-800 hover:text-white dark:hover:bg-blue-400 dark:hover:text-black transition duration-200 block mx-auto"
         >
           Enviar
         </button>
       </form>
     </div>
   );
-} 
-
+}
