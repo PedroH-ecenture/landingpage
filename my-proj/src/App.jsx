@@ -2,9 +2,16 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Header from "./header";
+import Footer from "./footer";
+import Banner from './banner'; 
+import 'swiper/css';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 export default function Formulario() {
   const [darkMode, setDarkMode] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home'); // ADICIONE ESTA LINHA
 
   useEffect(() => {
     if (darkMode) {
@@ -68,16 +75,31 @@ export default function Formulario() {
     alert("Formulário enviado com sucesso!");
   };
 
+  // ADICIONE ESTA LÓGICA PARA MOSTRAR O BANNER
+  if (currentPage === 'banner') {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+        <div className={`flex-1 ${darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"}`}>
+          <button
+            onClick={() => setCurrentPage('home')}
+            className="m-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          >
+            Voltar ao Formulário
+          </button>
+          <Banner />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
-    <div className={`relative flex flex-col items-center justify-center min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"}`}>
-      <button
-        type="button"
-        onClick={() => setDarkMode(!darkMode)}
-        className={`absolute top-4 right-4 px-4 py-2 rounded-lg transition 
-          ${darkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"}`}
-      >
-        {darkMode ? "Modo Claro" : "Modo Escuro"}
-      </button>
+    <div className="flex flex-col min-h-screen">
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+
+      
+    <div className={`relative flex flex-col items-center justify-center min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"}` }>
 
       <form
         onSubmit={handleSubmit}
@@ -140,6 +162,14 @@ export default function Formulario() {
           Enviar
         </button>
       </form>
+      <button
+        type="button"
+        onClick={() => setCurrentPage('banner')}
+        className="absolute top-2.5 right-4 px-4 py-2 rounded-lg transition bg-black text-white hover:bg-gray-800">
+        Ir ao banner
+        </button>
+    </div>
+    <Footer />
     </div>
   );
 }
