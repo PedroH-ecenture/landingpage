@@ -7,6 +7,7 @@ import "swiper/css";
 import { buscarCEP } from "./api";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Institutional from "./institutional";
+import { criarUsuario } from "./apilaravel.jsx"; // sua API Laravel
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -21,7 +22,7 @@ export default function App() {
     nome: "",
     telefone: "",
     email: "",
-    cpf: "39053344705",
+    cpf: "",
     cep: "",
     logradouro: "",
     complemento: "",
@@ -67,7 +68,8 @@ export default function App() {
     return resto === parseInt(cpf.charAt(10));
   };
 
-  const handleSubmit = (e) => {
+  // ** PRINCIPAL ALTERAÇÃO: handleSubmit envia os dados para a API **
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!/^\d{10,11}$/.test(formData.telefone)) {
       alert("O telefone deve ter apenas números e 10 ou 11 dígitos.");
@@ -77,8 +79,40 @@ export default function App() {
       alert("CPF inválido.");
       return;
     }
-    console.log("Dados enviados:", formData);
-    alert("Formulário enviado com sucesso!");
+    try {
+      // Envia o form para backend via axios (função criarUsuario)
+      await criarUsuario(formData);
+      alert("Usuário criado com sucesso!");
+      setFormData({
+        nome: "",
+        telefone: "",
+        email: "",
+        cpf: "",
+        cep: "",
+        logradouro: "",
+        complemento: "",
+        unidade: "",
+        bairro: "",
+        localidade: "",
+        uf: "",
+        estado: "",
+        regiao: "",
+        ibge: "",
+        gia: "",
+        ddd: "",
+        siafi: "",
+        numero: "",
+      });
+      setShowExtraFields(false);
+      setShowAddressFields(false);
+      navigate("/"); // ou outra página que queira após sucesso
+    } catch (error) {
+      console.error("Erro ao criar usuário:", error);
+      alert(
+        error.response?.data?.message ||
+          "Erro ao cadastrar usuário. Tente novamente."
+      );
+    }
   };
 
   return (
