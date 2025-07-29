@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import Header from "./header";
 import Footer from "./footer";
-import Banner from "./banner";
+// import Banner from "./banner";
 import "swiper/css";
 import { buscarCEP } from "./api";
 import { Routes, Route, useNavigate } from "react-router-dom";
