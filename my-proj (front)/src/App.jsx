@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
-import "./App.css";
-
-import Header from "./header";
-import Footer from "./footer";
-import "swiper/css";
 import { buscarCEP } from "./api";
-import { searchCPF } from "./api.jsx";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import { criarUsuario } from "./apilaravel.jsx";
 import Institutional from "./institutional";
 import Delete from "./deleteuser.jsx";
-import { criarUsuario } from "./apilaravel.jsx";
+import Header from "./header";
+import Footer from "./footer";
+import "./App.css";
+import "swiper/css";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -108,16 +106,18 @@ export default function App() {
     try {
       const dadosParaEnviar = {
         ...formData,
-        // Esses já estão sem máscara porque o estado mantém limpo
         telefone: formData.telefone,
         cpf: formData.cpf,
       };
 
       console.log("Dados para enviar:", dadosParaEnviar);
 
-      await criarUsuario(dadosParaEnviar);
+      // o const foi criado para armazenar o valor dos dados pra enviar
+      const responseMessage = await criarUsuario(dadosParaEnviar);
 
-      setSuccessMessage("Usuário criado com sucesso!");
+      // agora pega a mensagem do back, seja quando atualizar ou criar, nao ficando dependente de algo fixo
+      setSuccessMessage(responseMessage.message);
+
       setFormData({
         nome: "",
         telefone: "",
@@ -138,6 +138,7 @@ export default function App() {
         siafi: "",
         numero: "",
       });
+
       setShowExtraFields(false);
       setShowAddressFields(false);
       navigate("/");
@@ -151,6 +152,7 @@ export default function App() {
     }
   };
 
+
   return (
     <Routes>
       <Route
@@ -159,18 +161,16 @@ export default function App() {
           <div className="flex flex-col min-h-screen">
             <Header darkMode={darkMode} setDarkMode={setDarkMode} />
             <div
-              className={`relative flex flex-col items-center justify-center min-h-screen transition-colors duration-300 ${
-                darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"
-              }`}
+              className={`relative flex flex-col items-center justify-center min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"
+                }`}
             >
               <button
                 type="button"
                 onClick={() => navigate("/edituser")}
                 className={`absolute top-10.5 right-4 px-4 py-2 rounded-lg transition 
-                  ${
-                    darkMode
-                      ? "bg-white text-black hover:bg-gray-200"
-                      : "bg-black text-white hover:bg-gray-800"
+                  ${darkMode
+                    ? "bg-white text-black hover:bg-gray-200"
+                    : "bg-black text-white hover:bg-gray-800"
                   }`}
               >
                 Editar usuários
@@ -180,30 +180,28 @@ export default function App() {
                 type="button"
                 onClick={() => navigate("/viewuser")}
                 className={`absolute top-28.5 right-4 px-4 py-2 rounded-lg transition 
-                  ${
-                    darkMode
-                      ? "bg-white text-black hover:bg-gray-200"
-                      : "bg-black text-white hover:bg-gray-800"
+                  ${darkMode
+                    ? "bg-white text-black hover:bg-gray-200"
+                    : "bg-black text-white hover:bg-gray-800"
                   }`}
               >
                 Listar usuários
               </button>
 
               <button
-  type="button"
-  onClick={() => navigate("/deleteuser")}
-  className={`absolute top-46.5 right-4 px-4 py-2 rounded-lg transition 
+                type="button"
+                onClick={() => navigate("/deleteuser")}
+                className={`absolute top-46.5 right-4 px-4 py-2 rounded-lg transition 
     ${darkMode ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"}`}
->
-  Deletar usuários
-</button>
+              >
+                Deletar usuários
+              </button>
 
 
               <form
                 onSubmit={handleSubmit}
-                className={`p-8 rounded-xl shadow-lg w-full max-w-md space-y-4 ${
-                  darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
-                }`}
+                className={`p-8 rounded-xl shadow-lg w-full max-w-md space-y-4 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                  }`}
               >
                 <fieldset disabled={load} className="space-y-4">
                   <h2 className="text-2xl font-bold text-center">
@@ -358,11 +356,10 @@ export default function App() {
                   type="submit"
                   disabled={load}
                   className={`w-full sm:w-auto py-2 px-6 rounded-lg transition duration-200 block mx-auto font-semibold
-                  ${
-                    load
+                  ${load
                       ? "bg-blue-700 text-white cursor-wait animate-pulse"
                       : "bg-blue-400 text-black hover:bg-blue-800 hover:text-white dark:bg-blue-800 dark:hover:bg-blue-400 dark:text-white dark:hover:text-black"
-                  }`}
+                    }`}
                 >
                   {load ? "Enviando..." : "Enviar"}
                 </button>
