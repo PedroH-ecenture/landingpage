@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { deletarUsuario } from "./apilaravel";
-import axios from "axios";
+import Header from "./header";
+import Footer from "./footer";
 
 export default function Delete() {
   const navigate = useNavigate();
+
+  // Estado para modo escuro
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Atualiza classe dark no root do documento
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
+
   const [formData, setFormData] = useState({ email: "", cpf: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -21,7 +31,6 @@ export default function Delete() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "cpf") {
-      // mantém só números no estado
       const numericValue = value.replace(/\D/g, "").slice(0, 11);
       setFormData({ ...formData, [name]: numericValue });
     } else {
@@ -31,8 +40,11 @@ export default function Delete() {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.email) newErrors.email = "Email é obrigatório.";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email inválido.";
+    if (!formData.email) {
+      newErrors.email = "Email é obrigatório.";
+    } else if (!/\S+@\S+/.test(formData.email)) {
+      newErrors.email = "Email inválido.";
+    }
 
     if (!formData.cpf) newErrors.cpf = "CPF é obrigatório.";
     else if (formData.cpf.length !== 11) newErrors.cpf = "CPF deve ter 11 dígitos.";
@@ -43,113 +55,119 @@ export default function Delete() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage("");
     setErrors({});
-    setLoad(true);
+    setSuccessMessage("");
+
+    if (!validate()) return;
+
+    setLoading(true);
 
     try {
-      const dadosParaEnviar = {
-        ...formData,
-        // Esses já estão sem máscara porque o estado mantém limpo
-        telefone: formData.telefone,
+      const response = await deletarUsuario({
+        email: formData.email,
         cpf: formData.cpf,
-      };
-
-      console.log("Dados para enviar:", dadosParaEnviar);
-
-      await deletarUsuario(dadosParaEnviar);
-
-      setSuccessMessage("Usuário deletado com sucesso!");
-      setFormData({
-        email: "",
-        cpf: "",
       });
-      setShowExtraFields(false);
-      setShowAddressFields(false);
-      navigate("/");
+
+      setSuccessMessage(response.message);
+      setFormData({ email: "", cpf: "" });
     } catch (error) {
-      console.error("Erro completo:", error);
       setErrors({
-        api: error.response?.data?.message || "Erro ao deletar usuário. Tente novamente.",
+        api: error.response?.data?.message || "Erro ao deletar usuário.",
       });
     } finally {
-      setLoad(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-100 dark:bg-gray-900">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md"
-      >
-        <h2 className="text-xl font-bold mb-6 text-center text-gray-900 dark:text-white">
-          Deletar Usuário
-        </h2>
-
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="exemplo@dominio.com"
-            value={formData.email}
-            onChange={handleChange}
-            disabled={loading}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="cpf"
-            className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2"
-          >
-            CPF
-          </label>
-          <input
-            type="text"
-            id="cpf"
-            name="cpf"
-            placeholder="000.000.000-00"
-            maxLength={14}
-            value={formatCPF(formData.cpf)}
-            onChange={handleChange}
-            disabled={loading}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline"
-          />
-          {errors.cpf && (
-            <p className="text-red-500 text-xs italic mt-1">{errors.cpf}</p>
-          )}
-        </div>
-
-        {errors.api && (
-          <p className="text-red-600 text-center mb-4">{errors.api}</p>
-        )}
-
-        {successMessage && (
-          <p className="text-green-600 text-center mb-4">{successMessage}</p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+    <div className={`flex flex-col min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-blue-200 text-black"}`}>
+      {/* Passa darkMode e setDarkMode para Header */}
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+      <div className="flex-grow flex items-center justify-center p-6">
+        <form
+          onSubmit={handleSubmit}
+          className={`shadow-md rounded px-8 pt-6 pb-8 w-full max-w-md transition-colors duration-300
+            ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}
         >
-          {loading ? "Deletando..." : "Deletar Usuário"}
-        </button>
-      </form>
+          <h2 className="text-xl font-bold mb-6 text-center">
+            Deletar Usuário
+          </h2>
+
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className={`block text-sm font-bold mb-2 ${darkMode ? "text-gray-300" : "text-black"}`}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="exemplo@dominio.com"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={loading}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-500
+                ${darkMode
+                  ? "border-gray-600 bg-gray-700 placeholder-gray-500 text-white focus:ring-blue-400"
+                  : "border-blue-400 bg-white text-black"
+                }`}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="cpf"
+              className={`block text-sm font-bold mb-2 ${darkMode ? "text-gray-300" : "text-black"}`}
+            >
+              CPF
+            </label>
+            <input
+              type="text"
+              id="cpf"
+              name="cpf"
+              placeholder="000.000.000-00"
+              maxLength={14}
+              value={formatCPF(formData.cpf)}
+              onChange={handleChange}
+              disabled={loading}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-500
+                ${darkMode
+                  ? "border-gray-600 bg-gray-700 placeholder-gray-500 text-white focus:ring-blue-400"
+                  : "border-blue-400 bg-white text-black"
+                }`}
+            />
+            {errors.cpf && (
+              <p className="text-red-500 text-xs italic mt-1">{errors.cpf}</p>
+            )}
+          </div>
+
+          {errors.api && (
+            <p className="text-red-600 text-center mb-4">{errors.api}</p>
+          )}
+
+          {successMessage && (
+            <p className="text-green-600 text-center mb-4">{successMessage}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition
+              ${loading
+                ? "opacity-50 cursor-not-allowed bg-red-600 text-white"
+                : "bg-red-600 hover:bg-red-700 text-white"
+              }`}
+          >
+            {loading ? "Deletando..." : "Deletar Usuário"}
+          </button>
+        </form>
+      </div>
+      <Footer />
     </div>
   );
 }

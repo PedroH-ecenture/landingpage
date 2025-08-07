@@ -32,7 +32,24 @@ export const atualizarUsuario = async (id, dados) => {
   return response.data;
 };
 
+
+
 // Deletar usuário
-export const deletarUsuario = async (id) => {
-  await laravelApi.delete(`/usuarios/${id}`);
+// Precisa de um data, pois a exclusão está sendo feita por meio de cpf e email, e o método delete não envia um body direto com esses 2, enquanto com o ID sim
+export const deletarUsuario = async ({ email, cpf }) => {
+  const response = await laravelApi.delete('/usuarios', {
+    data: { email, cpf },
+  });
+  return response.data;
 };
+/* 
+
+Só desse jeito tava funcioanndo normal, estranho
+
+await laravelApi.delete('/usuarios', {
+  data: { email, cpf },
+});
+
+*/
+
+
