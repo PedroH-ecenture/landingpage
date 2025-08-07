@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-
+// tomara que dê certo
 import Header from "./header";
 import Footer from "./footer";
 import "swiper/css";
