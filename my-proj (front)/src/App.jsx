@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
-<<<<<<< HEAD
 import "./App.css";
 // tomara que dê certo
 import Header from "./header";
 import Footer from "./footer";
 import "swiper/css";
-=======
->>>>>>> d0bcfceb256f272f7d7ecc765acfd539e412607e
 import { buscarCEP } from "./api";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { criarUsuario } from "./apilaravel.jsx";
